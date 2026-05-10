@@ -1011,5 +1011,440 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
   a.addEventListener('click', function(e) { e.preventDefault(); });
 });
 </script>
+<!--
+  CEDRIC MORAIS — Mobile UI Overlay
+  Inject via browser devtools console, CMS custom HTML block, or <script> tag in <body>.
+  Targets: 375px–428px viewports. Does not break desktop layout.
+-->
+<style>
+  /* ── Only activates on mobile ── */
+  @media (max-width: 480px) {
+
+    /* Pull primary styles from site (black bg, white text, Inter + Playfair) */
+    :root {
+      --m-bg:       #0a0a0a;
+      --m-surface:  #111111;
+      --m-surface2: #1a1a1a;
+      --m-border:   rgba(255,255,255,0.08);
+      --m-text:     #f0f0f0;
+      --m-muted:    #666666;
+      --m-accent:   #f0f0f0;
+      --m-radius:   16px;
+      --m-sheet-h:  72px;        /* collapsed bottom sheet height */
+      --m-font-ui:  'Inter', system-ui, sans-serif;
+      --m-font-ser: 'Playfair Display', Georgia, serif;
+      --tap:        44px;        /* minimum tap target */
+    }
+
+    /* ── Hide existing desktop nav on mobile ── */
+    nav {
+      display: none !important;
+    }
+
+    /* ── Push page content above the bottom sheet ── */
+    body {
+      padding-bottom: calc(var(--m-sheet-h) + 16px) !important;
+    }
+
+    /* ════════════════════════════════
+       MOBILE TOP BAR
+    ════════════════════════════════ */
+    #m-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9998;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--m-border);
+    }
+
+    #m-topbar-logo {
+      font-family: var(--m-font-ui);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--m-text);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      min-height: var(--tap);
+      display: flex;
+      align-items: center;
+    }
+
+    #m-topbar-search {
+      width: var(--tap);
+      height: var(--tap);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--m-muted);
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.2s;
+    }
+
+    #m-topbar-search:active { color: var(--m-text); }
+
+    /* ── Offset pages for top bar ── */
+    .page.active {
+      padding-top: 52px !important;
+    }
+
+    /* ════════════════════════════════
+       BOTTOM SHEET NAV
+    ════════════════════════════════ */
+    #m-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 9999;
+      background: var(--m-surface);
+      border-top: 1px solid var(--m-border);
+      border-radius: var(--m-radius) var(--m-radius) 0 0;
+      transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
+      transform: translateY(0);
+      touch-action: none;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+    }
+
+    #m-sheet.expanded {
+      transform: translateY(calc(-100% + var(--m-sheet-h)));
+    }
+
+    /* drag handle */
+    #m-sheet-handle {
+      width: 100%;
+      height: var(--m-sheet-h);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    #m-sheet-pill {
+      width: 36px;
+      height: 4px;
+      background: var(--m-border);
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+
+    #m-sheet.expanded #m-sheet-pill { background: rgba(255,255,255,0.2); }
+
+    #m-sheet-label {
+      font-family: var(--m-font-ui);
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--m-muted);
+      transition: opacity 0.2s;
+    }
+
+    #m-sheet.expanded #m-sheet-label { opacity: 0; }
+
+    /* nav items inside sheet */
+    #m-sheet-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      padding: 4px 12px 32px;
+    }
+
+    .m-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 96px;
+      background: var(--m-surface2);
+      border-radius: 12px;
+      border: 1px solid var(--m-border);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.18s, border-color 0.18s;
+      padding: 16px 8px;
+    }
+
+    .m-nav-item:active,
+    .m-nav-item.active {
+      background: rgba(240,240,240,0.06);
+      border-color: rgba(240,240,240,0.18);
+    }
+
+    .m-nav-icon {
+      width: 22px;
+      height: 22px;
+      stroke: var(--m-muted);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+
+    .m-nav-item.active .m-nav-icon { stroke: var(--m-text); }
+
+    .m-nav-label {
+      font-family: var(--m-font-ui);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--m-muted);
+      transition: color 0.2s;
+    }
+
+    .m-nav-item.active .m-nav-label { color: var(--m-text); }
+
+    /* ════════════════════════════════
+       SEARCH DRAWER
+    ════════════════════════════════ */
+    #m-search-drawer {
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      z-index: 9997;
+      background: var(--m-surface);
+      border-bottom: 1px solid var(--m-border);
+      padding: 12px 16px;
+      transform: translateY(-110%);
+      transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    }
+
+    #m-search-drawer.open { transform: translateY(0); }
+
+    #m-search-input {
+      width: 100%;
+      height: var(--tap);
+      background: var(--m-surface2);
+      border: 1px solid var(--m-border);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-family: var(--m-font-ui);
+      font-size: 0.9rem;
+      color: var(--m-text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    #m-search-input::placeholder { color: var(--m-muted); }
+    #m-search-input:focus { border-color: rgba(240,240,240,0.2); }
+
+    /* ════════════════════════════════
+       MOBILE-SPECIFIC PAGE TWEAKS
+    ════════════════════════════════ */
+
+    /* Home */
+    #page-home {
+      padding: 52px 20px 20px !important;
+      height: auto !important;
+      min-height: 100svh;
+    }
+
+    .home-title {
+      font-size: clamp(3.2rem, 16vw, 4.5rem) !important;
+    }
+
+    .home-nav-right { display: none !important; }
+
+    /* Photography grid → 2 cols */
+    .photo-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 2px !important;
+    }
+
+    .page-header {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 16px !important;
+      padding: 24px 20px 20px !important;
+    }
+
+    .photo-footer { padding: 12px 20px !important; }
+
+    /* About → single column */
+    .about-wrap {
+      grid-template-columns: 1fr !important;
+    }
+
+    .about-photo-col { min-height: 60vw !important; }
+
+    .about-text-col {
+      padding: 28px 20px 28px !important;
+    }
+
+    .about-facts {
+      grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Journalism */
+    .article-featured-body {
+      padding: 28px 20px !important;
+    }
+
+    /* Article modal */
+    .modal-inner {
+      padding: 5rem 20px 4rem !important;
+    }
+
+    .modal-back {
+      left: 16px !important;
+      top: 14px !important;
+    }
+
+    /* Lightbox */
+    .lightbox img {
+      max-width: 96vw !important;
+      max-height: 80vh !important;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  // Only run on mobile viewports
+  if (window.innerWidth > 480) return;
+
+  /* ── Inject top bar ── */
+  var topbar = document.createElement('div');
+  topbar.id = 'm-topbar';
+  topbar.innerHTML = `
+    <span id="m-topbar-logo" onclick="showPage('home')">Cedric Morais</span>
+    <button id="m-topbar-search" aria-label="Search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+      </svg>
+    </button>
+  `;
+  document.body.prepend(topbar);
+
+  /* ── Inject search drawer ── */
+  var searchDrawer = document.createElement('div');
+  searchDrawer.id = 'm-search-drawer';
+  searchDrawer.innerHTML = `<input id="m-search-input" type="search" placeholder="Search pages…" autocomplete="off">`;
+  document.body.insertBefore(searchDrawer, topbar.nextSibling);
+
+  document.getElementById('m-topbar-search').addEventListener('click', function () {
+    searchDrawer.classList.toggle('open');
+    if (searchDrawer.classList.contains('open')) {
+      document.getElementById('m-search-input').focus();
+    }
+  });
+
+  // Simple search: jump to page if query matches
+  document.getElementById('m-search-input').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var q = this.value.toLowerCase().trim();
+    if (!q) return;
+    if (q.includes('photo')) { showPage('photography'); }
+    else if (q.includes('jour') || q.includes('article') || q.includes('writ')) { showPage('journalism'); }
+    else if (q.includes('about') || q.includes('cedric')) { showPage('about'); }
+    searchDrawer.classList.remove('open');
+    this.value = '';
+  });
+
+  /* ── Inject bottom sheet ── */
+  var sheet = document.createElement('div');
+  sheet.id = 'm-sheet';
+  sheet.innerHTML = `
+    <div id="m-sheet-handle">
+      <div id="m-sheet-pill"></div>
+      <span id="m-sheet-label">Navigate</span>
+    </div>
+    <div id="m-sheet-nav">
+      <div class="m-nav-item" id="mnav-photography" onclick="mNav('photography')">
+        <svg class="m-nav-icon" viewBox="0 0 24 24">
+          <rect x="2" y="6" width="20" height="15" rx="2"/>
+          <circle cx="12" cy="13.5" r="3.5"/>
+          <path d="M8 6l1.5-3h5L16 6"/>
+        </svg>
+        <span class="m-nav-label">Photos</span>
+      </div>
+      <div class="m-nav-item" id="mnav-home" onclick="mNav('home')">
+        <svg class="m-nav-icon" viewBox="0 0 24 24">
+          <path d="M3 9.5L12 3l9 6.5V21a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+          <path d="M9 22V12h6v10"/>
+        </svg>
+        <span class="m-nav-label">Home</span>
+      </div>
+      <div class="m-nav-item" id="mnav-journalism" onclick="mNav('journalism')">
+        <svg class="m-nav-icon" viewBox="0 0 24 24">
+          <path d="M4 4h16v16H4z" rx="2"/>
+          <line x1="8" y1="9" x2="16" y2="9"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="12" y2="17"/>
+        </svg>
+        <span class="m-nav-label">Writing</span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  /* ── Handle toggle ── */
+  document.getElementById('m-sheet-handle').addEventListener('click', function () {
+    sheet.classList.toggle('expanded');
+  });
+
+  /* ── Swipe up/down on sheet ── */
+  var startY = 0;
+  sheet.addEventListener('touchstart', function (e) {
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  sheet.addEventListener('touchend', function (e) {
+    var dy = startY - e.changedTouches[0].clientY;
+    if (dy > 30) sheet.classList.add('expanded');
+    if (dy < -30) sheet.classList.remove('expanded');
+  }, { passive: true });
+
+  /* ── Nav function ── */
+  window.mNav = function (page) {
+    sheet.classList.remove('expanded');
+    // Call existing showPage from the main site
+    if (typeof showPage === 'function') showPage(page);
+    // Sync active state
+    document.querySelectorAll('.m-nav-item').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    var active = document.getElementById('mnav-' + page);
+    if (active) active.classList.add('active');
+  };
+
+  /* ── Sync active state on existing nav clicks ── */
+  var origShowPage = window.showPage;
+  window.showPage = function (name) {
+    origShowPage(name);
+    document.querySelectorAll('.m-nav-item').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    var active = document.getElementById('mnav-' + name);
+    if (active) active.classList.add('active');
+    // Close search drawer on page change
+    document.getElementById('m-search-drawer').classList.remove('open');
+  };
+
+  /* ── Set initial active state ── */
+  document.getElementById('mnav-home').classList.add('active');
+
+  /* ── Close sheet when tapping page content ── */
+  document.addEventListener('click', function (e) {
+    if (!sheet.contains(e.target) && !e.target.closest('#m-topbar')) {
+      sheet.classList.remove('expanded');
+    }
+  });
+
+})();
+</script> 
 </body>
 </html>
