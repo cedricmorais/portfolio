@@ -1003,6 +1003,11 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
   Paste just before </body> in index.html
   Only activates on viewports ≤ 480px
 -->
+<!--
+  CEDRIC MORAIS — Mobile Nav Overlay
+  Paste just before </body> in index.html
+  Only activates on viewports ≤ 480px
+-->
 <style>
 @media (max-width: 480px) {
 
@@ -1048,7 +1053,17 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
 
   /* About */
   .about-wrap { grid-template-columns: 1fr !important; }
-  .about-photo-col { min-height: 56vw !important; }
+
+  .about-photo-col {
+    min-height: 100vw !important;
+    position: relative !important;
+  }
+
+  .about-photo-col img {
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+
   .about-text-col { padding: 24px 16px 32px !important; }
   .about-facts { grid-template-columns: 1fr 1fr !important; }
 
@@ -1110,19 +1125,11 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
     transform-origin: center;
   }
 
-  /* Animate to X when open */
-  #m-menu-btn.open .m-bar:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-  }
-  #m-menu-btn.open .m-bar:nth-child(2) {
-    opacity: 0;
-    width: 0;
-  }
-  #m-menu-btn.open .m-bar:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-  }
+  #m-menu-btn.open .m-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  #m-menu-btn.open .m-bar:nth-child(2) { opacity: 0; width: 0; }
+  #m-menu-btn.open .m-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-  /* ── FULLSCREEN MENU OVERLAY ── */
+  /* ── FULLSCREEN MENU ── */
   #m-menu {
     position: fixed;
     inset: 0;
@@ -1186,7 +1193,6 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
     flex-shrink: 0;
   }
 
-  /* Active page indicator */
   .m-menu-item.active .m-menu-label { font-style: italic; }
   .m-menu-item.active .m-menu-num { color: var(--m-text); }
 }
@@ -1285,7 +1291,7 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
     if (el) el.classList.add('active');
   }
 
-  /* ── Wrap existing showPage to keep state in sync ── */
+  /* ── Wrap existing showPage ── */
   var _orig = window.showPage;
   window.showPage = function (name) {
     _orig(name);
@@ -1293,7 +1299,7 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
     if (isOpen) toggleMenu();
   };
 
-  /* ── Init active state ── */
+  /* ── Init ── */
   syncActive('home');
 
 })();
