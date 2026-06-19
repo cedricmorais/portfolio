@@ -217,9 +217,8 @@ nav {
 }
 
 .photo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  columns: 3;
+  column-gap: 2px;
   padding: 2px;
   background: var(--bg);
 }
@@ -229,20 +228,23 @@ nav {
   overflow: hidden;
   background: var(--surface);
   cursor: pointer;
+  break-inside: avoid;
+  margin-bottom: 2px;
+  display: block;
 }
 
-.photo-item.portrait  { aspect-ratio: 2/3; }
-.photo-item.landscape { aspect-ratio: 3/2; }
-.photo-item.square    { aspect-ratio: 1/1; }
+.photo-item.portrait,
+.photo-item.landscape,
+.photo-item.square { aspect-ratio: unset; }
 
 .photo-item img {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
+  position: static;
+  width: 100%;
+  height: auto;
   display: none;
   transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.3s;
   filter: brightness(0.85);
+  object-fit: unset;
 }
 
 .photo-item img.loaded { display: block; }
@@ -794,15 +796,15 @@ nav {
       <img src="https://drive.google.com/thumbnail?id=13RAxKnL4Rq10dOUCVu2lBMiuPCAg_Mbo&sz=w1600" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
     </div>
 
-    <div class="photo-item portrait" data-cat="street" onclick="openLightbox(this)">
+    <div class="photo-item square" data-cat="street" onclick="openLightbox(this)">
       <img src="https://drive.google.com/thumbnail?id=1yBtdP9rzgEd-9uzFIpVqkjpTm1k5RAHo&sz=w1600" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
     </div>
 
-    <div class="photo-item portrait" data-cat="street" onclick="openLightbox(this)">
+    <div class="photo-item square" data-cat="street" onclick="openLightbox(this)">
       <img src="https://drive.google.com/thumbnail?id=1aFZZogeN0unuofnkESBJmNPNyLz4mEjf&sz=w1600" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
     </div>
 
-    <div class="photo-item portrait" data-cat="street" onclick="openLightbox(this)">
+    <div class="photo-item square" data-cat="street" onclick="openLightbox(this)">
       <img src="https://drive.google.com/thumbnail?id=1-5Dw8qq_J5V7gMj6S08XTSW8F36QwrLQ&sz=w1600" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
     </div>
 
@@ -1016,4 +1018,319 @@ document.querySelectorAll('.nav-links a').forEach(function(a) {
 });
 </script>
 </body>
+  <!--
+  CEDRIC MORAIS — Mobile Nav Overlay
+  Paste just before </body> in index.html
+  Only activates on viewports ≤ 480px
+-->
+<style>
+@media (max-width: 480px) {
+
+  :root {
+    --m-bg:      #0a0a0a;
+    --m-surface: #111111;
+    --m-border:  rgba(255,255,255,0.08);
+    --m-text:    #f0f0f0;
+    --m-muted:   #555555;
+    --m-nav-h:   52px;
+  }
+
+  /* Hide desktop nav */
+  nav { display: none !important; }
+
+  /* Compensate for fixed top bar */
+  .page.active { padding-top: var(--m-nav-h) !important; }
+
+  /* Kill extra home padding */
+  #page-home {
+    height: auto !important;
+    min-height: 100svh;
+    padding: 0 20px 40px !important;
+  }
+
+  .home-title { font-size: clamp(3rem, 15vw, 4rem) !important; }
+  .home-nav-right { display: none !important; }
+
+  /* Photography */
+  .photo-grid {
+    columns: 2 !important;
+    column-gap: 2px !important;
+    display: block !important;
+  }
+
+  .photo-item {
+    break-inside: avoid !important;
+    margin-bottom: 2px !important;
+    width: 100% !important;
+  }
+
+  .photo-item img {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: unset !important;
+  }
+
+  .page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 20px 16px 16px !important;
+  }
+
+  .photo-footer { padding: 10px 16px !important; }
+
+  /* About */
+  .about-wrap { grid-template-columns: 1fr !important; }
+
+  .about-photo-col {
+    min-height: 100vw !important;
+    position: relative !important;
+  }
+
+  .about-photo-col img {
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+
+  .about-text-col { padding: 24px 16px 32px !important; }
+  .about-facts { grid-template-columns: 1fr 1fr !important; }
+
+  /* Journalism */
+  .article-featured-body { padding: 24px 16px !important; }
+  .modal-inner { padding: 5rem 16px 3rem !important; }
+  .modal-back { left: 16px !important; top: 14px !important; }
+
+  /* ── TOP NAV BAR ── */
+  #m-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    height: var(--m-nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--m-border);
+  }
+
+  #m-logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--m-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    padding: 14px 0;
+  }
+
+  /* Hamburger button */
+  #m-menu-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+
+  .m-bar {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: var(--m-text);
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+    transform-origin: center;
+  }
+
+  #m-menu-btn.open .m-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  #m-menu-btn.open .m-bar:nth-child(2) { opacity: 0; width: 0; }
+  #m-menu-btn.open .m-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* ── FULLSCREEN MENU ── */
+  #m-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: var(--m-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 32px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+
+  #m-menu.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .m-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--m-border);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.2s;
+  }
+
+  .m-menu-item:first-child { border-top: 1px solid var(--m-border); }
+  .m-menu-item:active { opacity: 0.5; }
+
+  .m-menu-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .m-menu-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    color: var(--m-muted);
+  }
+
+  .m-menu-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--m-text);
+    line-height: 1;
+  }
+
+  .m-menu-arrow {
+    stroke: var(--m-muted);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  .m-menu-item.active .m-menu-label { font-style: italic; }
+  .m-menu-item.active .m-menu-num { color: var(--m-text); }
+}
+</style>
+
+<script>
+(function () {
+  if (window.innerWidth > 480) return;
+
+  /* ── Top bar ── */
+  var bar = document.createElement('div');
+  bar.id = 'm-bar';
+  bar.innerHTML = `
+    <span id="m-logo" onclick="mGo('home')">Cedric Morais</span>
+    <button id="m-menu-btn" aria-label="Menu" aria-expanded="false">
+      <span class="m-bar"></span>
+      <span class="m-bar"></span>
+      <span class="m-bar"></span>
+    </button>
+  `;
+  document.body.prepend(bar);
+
+  /* ── Fullscreen menu ── */
+  var menu = document.createElement('div');
+  menu.id = 'm-menu';
+  menu.innerHTML = `
+    <div class="m-menu-item" id="mmi-home" onclick="mGo('home')">
+      <div class="m-menu-item-left">
+        <span class="m-menu-num">01</span>
+        <span class="m-menu-label">Home</span>
+      </div>
+      <svg class="m-menu-arrow" width="20" height="20" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </div>
+    <div class="m-menu-item" id="mmi-photography" onclick="mGo('photography')">
+      <div class="m-menu-item-left">
+        <span class="m-menu-num">02</span>
+        <span class="m-menu-label">Photography</span>
+      </div>
+      <svg class="m-menu-arrow" width="20" height="20" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </div>
+    <div class="m-menu-item" id="mmi-journalism" onclick="mGo('journalism')">
+      <div class="m-menu-item-left">
+        <span class="m-menu-num">03</span>
+        <span class="m-menu-label">Journalism</span>
+      </div>
+      <svg class="m-menu-arrow" width="20" height="20" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </div>
+    <div class="m-menu-item" id="mmi-about" onclick="mGo('about')">
+      <div class="m-menu-item-left">
+        <span class="m-menu-num">04</span>
+        <span class="m-menu-label">About</span>
+      </div>
+      <svg class="m-menu-arrow" width="20" height="20" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </div>
+  `;
+  document.body.appendChild(menu);
+
+  /* ── Toggle menu ── */
+  var btn = document.getElementById('m-menu-btn');
+  var isOpen = false;
+
+  function toggleMenu() {
+    isOpen = !isOpen;
+    btn.classList.toggle('open', isOpen);
+    menu.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  btn.addEventListener('click', toggleMenu);
+
+  /* ── Navigate ── */
+  window.mGo = function (page) {
+    if (isOpen) toggleMenu();
+    if (typeof showPage === 'function') showPage(page);
+    syncActive(page);
+  };
+
+  function syncActive(page) {
+    document.querySelectorAll('.m-menu-item').forEach(function (el) {
+      el.classList.remove('active');
+    });
+    var el = document.getElementById('mmi-' + page);
+    if (el) el.classList.add('active');
+  }
+
+  /* ── Wrap existing showPage ── */
+  var _orig = window.showPage;
+  window.showPage = function (name) {
+    _orig(name);
+    syncActive(name);
+    if (isOpen) toggleMenu();
+  };
+
+  /* ── Init ── */
+  syncActive('home');
+
+})();
+</script>
 </html>
